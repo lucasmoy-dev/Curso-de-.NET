@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", init);
-const URL_API = 'http://localhost:7030/api/'
+const URL_API = 'https://localhost:7030/api/'
 
 var customers = []
 
@@ -24,7 +24,7 @@ function cerrarModal() {
 
 
 async function search() {
-  var url = URL_API + 'customers'
+  var url = URL_API + 'customer'
   var response = await fetch(url, {
     "method": 'GET',
     "headers": {
@@ -33,11 +33,13 @@ async function search() {
   })
   customers = await response.json();
 
+  console.log(customers);
+
   var html = ''
   for (customer of customers) {
     var row = `<tr>
-    <td>${customer.firstname}</td>
-    <td>${customer.lastname}</td>
+    <td>${customer.firstName}</td>
+    <td>${customer.lastName}</td>
     <td>${customer.email}</td>
     <td>${customer.phone}</td>
     <td>
@@ -48,20 +50,6 @@ async function search() {
     html = html + row;
   }
   document.querySelector('#customers > tbody').outerHTML = html
-}
-
-async function remove(id) {
-  respuesta = confirm('¿Está seguro de eliminarlo?')
-  if (respuesta) {
-    var url = URL_API + 'customers/' + id
-    await fetch(url, {
-      "method": 'DELETE',
-      "headers": {
-        "Content-Type": 'application/json'
-      }
-    })
-    window.location.reload();
-  }
 }
 
 function clean() {
@@ -83,17 +71,44 @@ async function save() {
   }
 
   var id = document.getElementById('txtId').value
-  if (id != '') {
+  if (id !== '') {
     data.id = id
   }
 
-  var url = URL_API + 'customers'
+  var url = URL_API + 'customer'
   await fetch(url, {
-    "method": id != '' ? 'PUT' : 'POST',
+    "method": id !== '' ? 'PUT' : 'POST',
     "body": JSON.stringify(data),
     "headers": {
       "Content-Type": 'application/json'
     }
   })
   window.location.reload();
+}
+
+async function remove(id){
+  respuesta = confirm("¿Estas seguro de eliminarlo?")
+  if (respuesta){
+    var url = URL_API + 'customer/' + id
+    var response = await fetch(url,{
+      method:'DELETE',
+      headers:{
+        "Content-Type": 'aplication/json'
+      }
+    })
+  }
+  window.location.reload();
+}
+
+async function edit(id){
+  abrirFormulario();
+  var customer = customers.find(x => x.id === id)
+    document.getElementById('txtId').value = customer.id
+    document.getElementById('txtAddress').value = customer.address
+    document.getElementById('txtEmail').value = customer.email
+     document.getElementById('txtFirstname').value = customer.firstName
+     document.getElementById('txtLastname').value = customer.lastName
+  document.getElementById('txtPhone').value = customer.phone
+
+
 }
